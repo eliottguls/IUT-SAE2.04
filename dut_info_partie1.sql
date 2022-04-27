@@ -6,14 +6,14 @@ CREATE TABLE _candidat(
       no_candidat         INT,
       id_individu         INT,
       classement          VARCHAR(5),
-      boursier_lycee      VARCHAR(20) not null, --pas boolean ?
+      boursier_lycee      VARCHAR(20) not null,
       profil_candidat     VARCHAR(20) not null,
       etablissement       VARCHAR(40) not null,
       dept_etablissement  VARCHAR(2) not null,
       ville_etablissement VARCHAR(30) not null,
       niveau_etude        VARCHAR(20) not null,
       type_formation_prec VARCHAR(15) not null,
-      serie_prec          VARCHAR(1)
+      serie_prec          VARCHAR(1),
       dominante_prec      VARCHAR(20),
       specialite_prec     VARCHAR(30),
       LV1                 VARCHAR(20) not null,
@@ -42,8 +42,8 @@ CREATE TABLE _etudiant(
       bourse_superieur    BOOLEAN not null,
       mention_bac         VARCHAR(10),
       serie_bac           VARCHAR(20) not null,
-      dominante_bac       VARCHAR(20) not null, --c quoi dominate ?
-      specialite_bac      VARCHAR(20), -- obligé d'avoir une spécialité ?
+      dominante_bac       VARCHAR(20) not null, 
+      specialite_bac      VARCHAR(20), 
       mois_annee_obtention_bac    CHAR(7),
       CONSTRAINT PK_ETUDIANT PRIMARY KEY(code_nip));
       
