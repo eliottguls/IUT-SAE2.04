@@ -2,6 +2,10 @@ drop schema if exists partie1 cascade;
 create schema partie1;
 set schema 'partie1';
 
+
+/**********************
+*       CANDIDAT      *
+**********************/
 CREATE TABLE _candidat(
       no_candidat         INT,
       id_individu         INT,
@@ -20,7 +24,12 @@ CREATE TABLE _candidat(
       LV2                 VARCHAR(25) not null,
        constraint PK_CANDIDAT primary key (no_candidat)
       );
+
+
       
+/**********************
+*       INDIVIDU      *
+**********************/
 CREATE TABLE _individu(
       id_individu         INT,
       nom                 VARCHAR(30) not null,
@@ -34,6 +43,9 @@ CREATE TABLE _individu(
       CONSTRAINT PK_INDIVIDU PRIMARY KEY(id_individu));
     
 
+/**********************
+*       ETUDIANT      *
+**********************/
 CREATE TABLE _etudiant(
       code_nip            VARCHAR(8),
       id_individu         INT,
@@ -47,12 +59,20 @@ CREATE TABLE _etudiant(
       mois_annee_obtention_bac    CHAR(7),
       CONSTRAINT PK_ETUDIANT PRIMARY KEY(code_nip));
       
+
+/**********************
+*       SEMESTRE      *
+**********************/
 CREATE TABLE _semestre(
       id_semestre                 INT,
       num_semestre                CHAR(5) not null,
       annee_univ                  CHAR(9) not null,
       CONSTRAINT PK_SEMESTRE PRIMARY KEY(id_semestre));
       
+
+/*************************
+*       INSCRIPTION      *
+*************************/
 CREATE TABLE _inscription(
       code_nip                    VARCHAR(8),
       id_semestre                 INT,
@@ -60,20 +80,28 @@ CREATE TABLE _inscription(
       amenagement_evaluation      VARCHAR(20) not null,
       CONSTRAINT PK_INSCRIPTION PRIMARY kEY(code_nip, id_semestre));
         
+
+/********************
+*       MODULE      *
+********************/
 CREATE TABLE _module(
       id_module                   CHAR(5),
       libelle_module              VARCHAR(10) not null,
       ue                          CHAR(2) not null,
       CONSTRAINT PK_MODULE PRIMARY KEY (id_module));
       
-
+/***********************
+*      PROGRAMME       *
+***********************/
 CREATE TABLE _programme(
       id_semestre                 INT,
       id_module                   CHAR(5),
       coefficient                 FLOAT not null,
       CONSTRAINT PK_PROGRAMME PRIMARY KEY (id_semestre, id_module));
       
-
+/**********************
+*       RESULTAT      *
+**********************/
 CREATE TABLE _resultat(
       id_module                   CHAR(5),
       id_semestre                 INT,
@@ -81,24 +109,28 @@ CREATE TABLE _resultat(
       moyenne                     FLOAT not null,
       CONSTRAINT PK_RESULTAT PRIMARY KEY(id_module, id_semestre, code_nip));
 
+
+/********************
+*    CONTRAINTES    *
+********************/
 ALTER TABLE _resultat
-  ADD CONSTRAINT Fk_resultat_etudiant FOREIGN KEY (code_nip)
+  ADD CONSTRAINT fk_resultat_etudiant FOREIGN KEY (code_nip)
     REFERENCES _etudiant (code_nip);
     
 ALTER TABLE _resultat
-  ADD CONSTRAINT Fk_resultat_module FOREIGN KEY (id_module)
+  ADD CONSTRAINT fk_resultat_module FOREIGN KEY (id_module)
     REFERENCES _module (id_module);
     
 ALTER TABLE _resultat
-  ADD CONSTRAINT Fk_resultat_semestre FOREIGN KEY (id_semestre)
+  ADD CONSTRAINT fk_resultat_semestre FOREIGN KEY (id_semestre)
     REFERENCES _semestre (id_semestre);
     
 ALTER TABLE _programme
-  ADD CONSTRAINT Fk_programme_module FOREIGN KEY (id_module)
+  ADD CONSTRAINT fk_programme_module FOREIGN KEY (id_module)
     REFERENCES _module;
     
 ALTER TABLE _programme
-  ADD CONSTRAINT Fk_programme_smestre FOREIGN KEY (id_semestre)
+  ADD CONSTRAINT fk_programme_smestre FOREIGN KEY (id_semestre)
     REFERENCES _semestre;
 
 ALTER TABLE _inscription
@@ -117,3 +149,9 @@ ALTER TABLE _etudiant
       ADD CONSTRAINT fk_etudiant_incription FOREIGN KEY (id_individu)
           REFERENCES _individu(id_individu);
 
+WbImport -file=./data/v_candidatures.csv
+         -hearder = false
+         -delimiter=';'
+         -table=_individu
+         -schema = partie1
+         -fileColumns=numero_candidat, nom, prenom, date_naissance, code_postal, ville, sexe, nationalite, numero_ine;
