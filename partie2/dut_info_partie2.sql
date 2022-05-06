@@ -24,8 +24,6 @@ CREATE TABLE _candidat(
       LV2                 VARCHAR(25) not null,
        constraint PK_CANDIDAT primary key (no_candidat)
       );
-
-
       
 /**********************
 *       INDIVIDU      *
@@ -34,12 +32,12 @@ CREATE TABLE _individu(
       id_individu         INT,
       nom                 VARCHAR(30) not null,
       prenom              VARCHAR(20) not null,
-      date_naissance      DATE not null,
-      code_postal         VARCHAR(3) not null,
-      ville               VARCHAR(30) not null,
       sexe                VARCHAR(8) not null,
+      date_naissance      DATE not null,
+      code_postal         VARCHAR(30) not null,
+      ville               VARCHAR(30) not null,
       nationalite         VARCHAR(20) not null,
-      INE                 VARCHAR(8) not null,
+      INE                 VARCHAR(11) not null,
       CONSTRAINT PK_INDIVIDU PRIMARY KEY(id_individu));
     
 
@@ -85,9 +83,9 @@ CREATE TABLE _inscription(
 *       MODULE      *
 ********************/
 CREATE TABLE _module(
-      id_module                   CHAR(5),
-      libelle_module              VARCHAR(10) not null,
-      ue                          CHAR(2) not null,
+      id_module                   VARCHAR(10),
+      ue                          CHAR(4) not null,
+      libelle_module              VARCHAR(150) not null,
       CONSTRAINT PK_MODULE PRIMARY KEY (id_module));
       
 /***********************
@@ -149,9 +147,17 @@ ALTER TABLE _etudiant
       ADD CONSTRAINT fk_etudiant_incription FOREIGN KEY (id_individu)
           REFERENCES _individu(id_individu);
 
-WbImport -file=./data/v_candidatures.csv
-         -hearder = false
+-- WbImport -file= C:\Users\eliot\OneDrive\Bureau\IUT\SAE\S2\SAE2.04\partie2\data\v_candidatures.csv
+--          -header= true
+--          -delimiter=';'
+--          -table=_individu
+--          -schema=partie1
+--          -fileColumns=$wb_skip$, numero_candidat, $wb_skip$,  nom, prenom, sexe, date_naissance, nationalite, code_postal, ville, $wb_skip$, $wb_skip$, $wb_skip$, INE;
+
+WbImport -file=C:\Users\eliot\OneDrive\Bureau\IUT\SAE\S2\SAE2.04\partie2\data\ppn.csv
+         -header=true
          -delimiter=';'
-         -table=_individu
-         -schema = partie1
-         -fileColumns=numero_candidat, nom, prenom, date_naissance, code_postal, ville, sexe, nationalite, numero_ine;
+         -table=_module
+         -schema=partie1
+         -filecolumns=id_module,ue,libelle_module
+;

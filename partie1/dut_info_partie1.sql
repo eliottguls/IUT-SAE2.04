@@ -147,9 +147,3 @@ ALTER TABLE _etudiant
       ADD CONSTRAINT fk_etudiant_incription FOREIGN KEY (id_individu)
           REFERENCES _individu(id_individu);
 
-WbImport -file= C:\Users\eliot\OneDrive\Bureau\IUT\SAE\S2\SAE2.04\partie2\data\v_candidatures.csv
-         -header= true
-         -delimiter=';'
-         -table=_individu
-         -schema=partie1
-         -fileColumns=$wb_skip$, numero_candidat, $wb_skip$,  nom, prenom, sexe, date_naissance, nationalite, code_postal, ville, $wb_skip$, $wb_skip$, $wb_skip$, INE;
