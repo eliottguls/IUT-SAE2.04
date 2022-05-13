@@ -34,8 +34,8 @@ CREATE TABLE _individu(
       prenom              VARCHAR(20) not null,
       sexe                VARCHAR(8) not null,
       date_naissance      DATE not null,
-      code_postal         VARCHAR(30) not null,
-      ville               VARCHAR(30) not null,
+      code_postal         VARCHAR(30), --null
+      ville               VARCHAR(30), --null
       nationalite         VARCHAR(20) not null,
       INE                 VARCHAR(11) not null,
       CONSTRAINT PK_INDIVIDU PRIMARY KEY(id_individu));
@@ -49,7 +49,7 @@ CREATE TABLE _etudiant(
       id_individu         INT,
       cat_socio_etu       VARCHAR(20) not null,
       cat_socio_parent    VARCHAR(20) not null,
-      bourse_superieur    BOOLEAN not null,
+      bourse_superieur    BOOLEAN,
       mention_bac         VARCHAR(10),
       serie_bac           VARCHAR(20) not null,
       dominante_bac       VARCHAR(20) not null, 
@@ -147,12 +147,12 @@ ALTER TABLE _etudiant
       ADD CONSTRAINT fk_etudiant_incription FOREIGN KEY (id_individu)
           REFERENCES _individu(id_individu);
 
--- WbImport -file= C:\Users\eliot\OneDrive\Bureau\IUT\SAE\S2\SAE2.04\partie2\data\v_candidatures.csv
---          -header= true
---          -delimiter=';'
---          -table=_individu
---          -schema=partie1
---          -fileColumns=$wb_skip$, numero_candidat, $wb_skip$,  nom, prenom, sexe, date_naissance, nationalite, code_postal, ville, $wb_skip$, $wb_skip$, $wb_skip$, INE;
+WbImport -file= C:\Users\eliot\OneDrive\Bureau\IUT\SAE\S2\SAE2.04\partie2\data\v_candidatures.csv
+         -header=true
+         -delimiter=';'
+         -table=_individu
+         -schema=partie1
+         -fileColumns=$wb_skip$, id_individu, $wb_skip$,  nom, prenom, sexe, date_naissance, nationalite, code_postal, ville, $wb_skip$, $wb_skip$, $wb_skip$, INE;
 
 WbImport -file=C:\Users\eliot\OneDrive\Bureau\IUT\SAE\S2\SAE2.04\partie2\data\ppn.csv
          -header=true
@@ -160,4 +160,6 @@ WbImport -file=C:\Users\eliot\OneDrive\Bureau\IUT\SAE\S2\SAE2.04\partie2\data\pp
          -table=_module
          -schema=partie1
          -filecolumns=id_module,ue,libelle_module
+         
+
 ;
