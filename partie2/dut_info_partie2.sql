@@ -4,7 +4,7 @@ set schema 'partie2';
 
 CREATE TABLE _candidat(
       no_candidat         INT,
-      id_individu         INT,
+      id_individu         INT,  
       classement          VARCHAR(5),
       boursier_lycee      VARCHAR(20) not null, 
       profil_candidat     VARCHAR(20) not null,
@@ -36,7 +36,7 @@ CREATE TABLE _individu(
     
 
 CREATE TABLE _etudiant(
-      code_nip            VARCHAR(8),
+      code_nip            VARCHAR(8), -- = numero etudiant
       id_individu         INT,
       cat_socio_etu       VARCHAR(20),
       cat_socio_parent    VARCHAR(20),
@@ -49,59 +49,66 @@ CREATE TABLE _etudiant(
       CONSTRAINT PK_ETUDIANT PRIMARY KEY(code_nip));
       
 CREATE TABLE _semestre(
-      id_semestre                 CHAR(2), --passage de int a char(2)
+      id_semestre                 SERIAL, 
       num_semestre                CHAR(5) not null,
       annee_univ                  CHAR(9) not null,
-      CONSTRAINT PK_SEMESTRE PRIMARY KEY(id_semestre));
+      CONSTRAINT PK_SEMESTRE PRIMARY KEY(annee_univ, num_semestre));
       
 CREATE TABLE _inscription(
       code_nip                    VARCHAR(8),
-      id_semestre                 CHAR(2), -- passage de int to char(2)
+      id_semestre                 SERIAL,
       groupe_tp                   CHAR(2) not null,
       amenagement_evaluation      VARCHAR(20) not null,
       CONSTRAINT PK_INSCRIPTION PRIMARY kEY(code_nip, id_semestre));
         
 CREATE TABLE _module(
-      id_module                   VARCHAR(6),
+      id_module                   VARCHAR(7), -- passage en varchar 7
       libelle_module              VARCHAR(150) not null, --changement a 150
       ue                          CHAR(4) not null,
       CONSTRAINT PK_MODULE PRIMARY KEY (id_module));
       
 
 CREATE TABLE _programme(
-      id_semestre                 CHAR(2), -- passage de int to char(2)
-      id_module                   VARCHAR(6),
+      annee_univ                  CHAR(9) not null,
+      num_semestre                CHAR(5) not null,
+      id_module                   VARCHAR(7), -- passage en varchar 7
       coefficient                 FLOAT not null,
-      CONSTRAINT PK_PROGRAMME PRIMARY KEY (id_semestre, id_module));
+      CONSTRAINT PK_PROGRAMME PRIMARY KEY (id_module));
       
 
 CREATE TABLE _resultat(
-      id_module                   VARCHAR(6),
-      id_semestre                 CHAR(2), -- passage de int to char(2)
+      id_module                   VARCHAR(7), -- passage en varchar 7
       code_nip                    VARCHAR(8),
       moyenne                     FLOAT not null,
-      CONSTRAINT PK_RESULTAT PRIMARY KEY(id_module, id_semestre, code_nip));
+      CONSTRAINT PK_RESULTAT PRIMARY KEY(id_module, code_nip));
+      
+CREATE TABLE _temp_semestre
+(
+      num_semestre                VARCHAR(5),
+      annee_univ                  CHAR(9)
+);
 
 ALTER TABLE _resultat
   ADD CONSTRAINT Fk_resultat_etudiant FOREIGN KEY (code_nip)
     REFERENCES _etudiant (code_nip);
-    
+
 ALTER TABLE _resultat
   ADD CONSTRAINT Fk_resultat_module FOREIGN KEY (id_module)
     REFERENCES _module (id_module);
     
-ALTER TABLE _resultat
-  ADD CONSTRAINT Fk_resultat_semestre FOREIGN KEY (id_semestre)
-    REFERENCES _semestre (id_semestre);
-    
 ALTER TABLE _programme
   ADD CONSTRAINT Fk_programme_module FOREIGN KEY (id_module)
     REFERENCES _module(id_module);
+
+ALTER TABLE _programme
+  ADD CONSTRAINT Fk_programme_smestre_1 FOREIGN KEY (annee_univ)
+    REFERENCES _semestre (annee_univ);
     
 ALTER TABLE _programme
-  ADD CONSTRAINT Fk_programme_smestre FOREIGN KEY (id_semestre)
-    REFERENCES _semestre (id_semestre);
+  ADD CONSTRAINT Fk_programme_smestre_2 FOREIGN KEY (num_semestre)
+    REFERENCES _semestre (num_semestre);
 
+/*
 ALTER TABLE _inscription
     ADD CONSTRAINT fk_inscription_semestre FOREIGN KEY (id_semestre)
         REFERENCES _semestre(id_semestre);
@@ -109,7 +116,8 @@ ALTER TABLE _inscription
 ALTER TABLE _inscription
     ADD CONSTRAINT fk_inscription_etudiant FOREIGN KEY (code_nip)
         REFERENCES _etudiant(code_nip);
-        
+*/
+   
 ALTER TABLE _candidat
     ADD CONSTRAINT fk_candidat_postuler_individu FOREIGN KEY (id_individu)
         REFERENCES _individu(id_individu);
@@ -118,37 +126,59 @@ ALTER TABLE _etudiant
       ADD CONSTRAINT fk_etudiant_incription FOREIGN KEY (id_individu)
           REFERENCES _individu(id_individu);
           
-WbImport -file = data/v_candidatures.csv
+
+          
+WbImport -file = data2/v_candidatures.csv
          -header = true
          -delimiter = ';'
          -table = _individu
          -schema = partie2
          -fileColumns = $wb_skip$, $wb_skip$ , $wb_skip$,  nom, prenom, sexe, date_naissance, nationalite, code_postal, ville, $wb_skip$, $wb_skip$, $wb_skip$, INE;
-         
-BEGIN TRANSACTION
 
-WbImport -file= data/ppn.csv
+WbImport -file= data2/ppn.csv
+         -header = true
+         -delimiter = ';'
+         -table = _module
+         -schema = partie2
+         -filecolumns = id_module, ue, libelle_module;
+
+WbImport -file= data2/v_resu_s1.csv
+         -header = true
+         -delimiter = ';'
+         -table = _temp_semestre
+         -schema = partie2
+         -filecolumns = annee_univ, num_semestre;
+;       
+WbImport -file= data2/v_resu_s2.csv
+         -header = true
+         -delimiter = ';'
+         -table = _temp_semestre
+         -schema = partie2
+         -filecolumns = annee_univ, num_semestre;
+         
+WbImport -file= data2/v_resu_s3.csv
+         -header = true
+         -delimiter = ';'
+         -table = _temp_semestre
+         -schema = partie2
+         -filecolumns = annee_univ, num_semestre;
+;        
+WbImport -file= data2/v_resu_s4.csv
+         -header = true
+         -delimiter = ';'
+         -table = _temp_semestre
+         -schema = partie2
+         -filecolumns = annee_univ, num_semestre;
+        
+insert into _semestre (num_semestre, annee_univ)
+select distinct num_semestre, annee_univ
+from _temp_semestre;
+
+
+WbImport -file= data2/ppn.csv
          -header = true
          -delimiter = ';'
          -table = _programme
          -schema = partie2
-         -filecolumns = id_module, $wb_skip$  ,$wb_skip$, coefficient, $wb_skip$, $wb_skip$, $wb_skip$, id_semestre
-
-WbImport -file= data/ppn.csv
-         -header = true
-         -delimiter = ';'
-         -table = _module
-         -schema = partie2
-         -filecolumns = id_module,ue,libelle_module
-         
-WbImport -file= data/ppn.csv
-         -header = true
-         -delimiter = ';'
-         -table = _module
-         -schema = partie2
-         -filecolumns = id_module,ue,libelle_module
-         
-
-COMMIT TRANSACTION
-
-
+         -filecolumns = id_module, $wb_skip$  ,$wb_skip$, coefficient;
+ 
