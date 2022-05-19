@@ -8,23 +8,22 @@ set schema 'partie2';
 **********************/
 drop table if exists _candidat;
 CREATE TABLE _candidat(
+      id_individu         SERIAL,
       no_candidat         INT,
-      id_individu         INT,
-      classement          VARCHAR(5),
+      classement          VARCHAR(100),
       boursier_lycee      VARCHAR(100),--30
       profil_candidat     VARCHAR(100) not null,--30
-      etablissement       VARCHAR(50),--30
-      dept_etablissement  VARCHAR(5), -- 2
+      etablissement       VARCHAR(100),--30
+      dept_etablissement  VARCHAR(100), -- 2
       ville_etablissement VARCHAR(100), --50
-      niveau_etude        VARCHAR(50), --30
-      type_formation_prec VARCHAR(50), --10 de base
+      niveau_etude        VARCHAR(100), --30
+      type_formation_prec VARCHAR(100), --10 de base
       serie_prec          VARCHAR(100), --2 de base
       dominante_prec      VARCHAR(100),--30
       specialite_prec     VARCHAR(100), --50
-      LV1                 VARCHAR(40),--30
-      LV2                 VARCHAR(25),
-       constraint PK_CANDIDAT primary key (no_candidat)
-       FOREIGN KEY
+      LV1                 VARCHAR(100),--30
+      LV2                 VARCHAR(100),
+       constraint PK_CANDIDAT primary key (id_individu)
       );
       
 /**********************
@@ -32,7 +31,7 @@ CREATE TABLE _candidat(
 **********************/
 drop table if exists _individu Cascade;
 CREATE TABLE _individu(
-      id_individu         INT,
+      id_individu         SERIAL,
       nom                 VARCHAR(30) not null,
       prenom              VARCHAR(20) not null,
       sexe                VARCHAR(8) not null,
@@ -41,7 +40,6 @@ CREATE TABLE _individu(
       ville               VARCHAR(30), --null
       nationalite         VARCHAR(20) not null,
       INE                 VARCHAR(11) not null,
-      UNIQUE(INE),
       CONSTRAINT PK_INDIVIDU PRIMARY KEY(id_individu));
     
 
@@ -152,37 +150,40 @@ ALTER TABLE _etudiant
           REFERENCES _individu(id_individu);
 
 
+drop table if exists partie2._candidat_temp;
+CREATE TABLE partie2._candidat_temp(
+      no_candidat         INT,
+      classement          VARCHAR(5),
+      boursier_lycee      VARCHAR(100),--30
+      profil_candidat     VARCHAR(100) not null,--30
+      INE                 VARCHAR(11)PRIMARY KEY,
+      etablissement       VARCHAR(100),--30
+      ville_etablissement VARCHAR(100), --50
+      dept_etablissement  VARCHAR(5), -- 2
+      niveau_etude        VARCHAR(100), --30
+      type_formation_prec VARCHAR(100), --10 de base
+      serie_prec          VARCHAR(100), --2 de base
+      dominante_prec      VARCHAR(100),--30
+      specialite_prec     VARCHAR(100), --50
+      LV1                 VARCHAR(40),--30
+      LV2                 VARCHAR(25)
+      );
 
-         
-
-WbImport -file=C:\Users\eliot\OneDrive\Bureau\IUT\SAE\S2\SAE2.04\partie2\data\v_candidatures.csv
+      
+WbImport -file=/home/etuinfo/eguillossou/TÃ©lÃ©chargements/v_candidatures.csv
          -header=true
          -delimiter=';'
-         -table=_candidat
+         -table=_candidat_temp
          -schema=partie2
-         -filecolumns=$wb_skip$, no_candidat, classement, $wb_skip$, $wb_skip$, 
-          $wb_skip$, $wb_skip$, $wb_skip$, $wb_skip$, $wb_skip$, $wb_skip$,
-          boursier, profil_candidat, $wb_skip$, $wb_skip$, libelle_etablissement,
+         -filecolumns=$wb_skip$, no_candidat, classement, $wb_skip$, $wb_skip$,$wb_skip$, $wb_skip$, 
+          $wb_skip$, $wb_skip$, $wb_skip$, $wb_skip$, boursier, profil_candidat, INE, $wb_skip$, etablissement,
           ville_etablissement, dept_etablissement, $wb_skip$, niveau_etude, 
           type_formation, serie_prec, dominante_prec, specialite_prec, lv1, lv2;
          
-WbImport -file= /home/etuinfo/eguillossou/Téléchargements/v_candidatures.csv
-         -header=true
-         -delimiter=';'
-         -table=_individu
-         -schema=partie1
-         -fileColumns=$wb_skip$, id_individu, $wb_skip$,  nom, prenom, sexe, date_naissance, nationalite, code_postal, ville, $wb_skip$, $wb_skip$, $wb_skip$, INE;
+INSERT INTO partie2._candidat
+    (SELECT id_individu, no_candidat, classement, boursier_lycee, profil_candidat, etablissement, ville_etablissement, niveau_etude, type_formation_prec, serie_prec, dominante_prec, specialite_prec, LV1, LV2
+      FROM _candidat_temp ct
+      INNER JOIN _individu i ON ct.ine = i.ine);
 
-
-
-;
-
-WbImport -file=C:\Users\eliot\OneDrive\Bureau\IUT\SAE\S2\SAE2.04\partie2\data\ppn.csv
-         -header=true
-         -delimiter=';'
-         -table=_module
-         -schema=partie1
-         -filecolumns=id_module,ue,libelle_module
          
-
-;
+-- il reste plus qu'a setlimit > 500
