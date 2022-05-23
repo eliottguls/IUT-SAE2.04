@@ -126,6 +126,13 @@ ALTER TABLE _etudiant
       ADD CONSTRAINT fk_etudiant_incription FOREIGN KEY (id_individu)
           REFERENCES _individu(id_individu);
           
+          
+WbImport -file = data/v_candidatures.csv
+         -header = true
+         -delimiter = ';'
+         -table = _individu
+         -schema = partie2
+         -fileColumns = $wb_skip$, $wb_skip$ , $wb_skip$,  nom, prenom, sexe, date_naissance, nationalite, code_postal, ville, $wb_skip$, $wb_skip$, $wb_skip$, INE;
 
           
 WbImport -file = data2/v_candidatures.csv
@@ -182,3 +189,38 @@ WbImport -file= data2/ppn.csv
          -schema = partie2
          -filecolumns = id_module, $wb_skip$  ,$wb_skip$, coefficient;
  
+drop table if exists partie2._candidat_temp;
+CREATE TABLE partie2._candidat_temp(
+      no_candidat         INT,
+      classement          VARCHAR(5),
+      boursier_lycee      VARCHAR(100),--30
+      profil_candidat     VARCHAR(100) not null,--30
+      INE                 VARCHAR(11)PRIMARY KEY,
+      etablissement       VARCHAR(100),--30
+      ville_etablissement VARCHAR(100), --50
+      dept_etablissement  VARCHAR(5), -- 2
+      niveau_etude        VARCHAR(100), --30
+      type_formation_prec VARCHAR(100), --10 de base
+      serie_prec          VARCHAR(100), --2 de base
+      dominante_prec      VARCHAR(100),--30
+      specialite_prec     VARCHAR(100), --50
+      LV1                 VARCHAR(40),--30
+      LV2                 VARCHAR(25)
+      );
+
+      
+
+WbImport -file=/home/etuinfo/eguillossou/Documents/IUT_1ST_Y/S2/SAE/SAE2.04/data/v_candidatures.csv
+         -header=true
+         -delimiter=';'
+         -table=_candidat_temp
+         -schema=partie2
+         -filecolumns=$wb_skip$, no_candidat, classement, $wb_skip$, $wb_skip$,$wb_skip$, $wb_skip$, 
+          $wb_skip$, $wb_skip$, $wb_skip$, $wb_skip$, boursier, profil_candidat, INE, $wb_skip$, etablissement,
+          ville_etablissement, dept_etablissement, $wb_skip$, niveau_etude, 
+          type_formation, serie_prec, dominante_prec, specialite_prec, lv1, lv2;
+         
+INSERT INTO partie2._candidat
+    (SELECT id_individu, no_candidat, classement, boursier_lycee, profil_candidat, etablissement, ville_etablissement, niveau_etude, type_formation_prec, serie_prec, dominante_prec, specialite_prec, LV1, LV2
+      FROM _candidat_temp ct
+      INNER JOIN _individu i ON ct.ine = i.ine);
