@@ -67,8 +67,16 @@ CREATE TABLE _semestre(
       id_semestre                 INT,
       num_semestre                CHAR(5) not null,
       annee_univ                  CHAR(9) not null,
-      CONSTRAINT PK_SEMESTRE PRIMARY KEY(id_semestre));
+      CONSTRAINT PK_SEMESTRE PRIMARY KEY(id_semestre),
+      UNIQUE(num_semestre, annee_univ)      
+);
       
+CREATE TABLE _temp_semestre
+(
+      num_semestre                VARCHAR(5),
+      annee_univ                  CHAR(9)
+);
+
 
 /*************************
 *       INSCRIPTION      *
@@ -94,10 +102,11 @@ CREATE TABLE _module(
 *      PROGRAMME       *
 ***********************/
 CREATE TABLE _programme(
-      id_semestre                 INT,
-      id_module                   CHAR(5),
+      annee_univ                  CHAR(9) ,
+      num_semestre                CHAR(5) ,
+      id_module                   VARCHAR(7), -- passage en varchar 7
       coefficient                 FLOAT not null,
-      CONSTRAINT PK_PROGRAMME PRIMARY KEY (id_semestre, id_module));
+      CONSTRAINT PK_PROGRAMME PRIMARY KEY (id_module, num_semestre));
       
 /**********************
 *       RESULTAT      *
@@ -114,25 +123,21 @@ CREATE TABLE _resultat(
 *    CONTRAINTES    *
 ********************/
 ALTER TABLE _resultat
-  ADD CONSTRAINT fk_resultat_etudiant FOREIGN KEY (code_nip)
+  ADD CONSTRAINT Fk_resultat_etudiant FOREIGN KEY (code_nip)
     REFERENCES _etudiant (code_nip);
-    
+
 ALTER TABLE _resultat
   ADD CONSTRAINT fk_resultat_module FOREIGN KEY (id_module)
     REFERENCES _module (id_module);
     
-ALTER TABLE _resultat
-  ADD CONSTRAINT fk_resultat_semestre FOREIGN KEY (id_semestre)
-    REFERENCES _semestre (id_semestre);
-    
 ALTER TABLE _programme
   ADD CONSTRAINT fk_programme_module FOREIGN KEY (id_module)
-    REFERENCES _module;
-    
-ALTER TABLE _programme
-  ADD CONSTRAINT fk_programme_smestre FOREIGN KEY (id_semestre)
-    REFERENCES _semestre;
+    REFERENCES _module(id_module);
 
+ALTER TABLE _programme
+  ADD CONSTRAINT fk_programme_semestre_1 FOREIGN KEY (annee_univ, num_semestre)
+    REFERENCES _semestre (annee_univ, num_semestre);
+    
 ALTER TABLE _inscription
     ADD CONSTRAINT fk_inscription_semestre FOREIGN KEY (id_semestre)
         REFERENCES _semestre(id_semestre);
@@ -172,14 +177,14 @@ CREATE TABLE partie2._candidat_temp(
 
       
 
-WbImport -file = data/v_candidatures.csv
+WbImport -file = data2/v_candidatures.csv
          -header = true
          -delimiter = ';'
          -table = _individu
          -schema = partie2
          -fileColumns = $wb_skip$, $wb_skip$ , $wb_skip$,  nom, prenom, sexe, date_naissance, nationalite, code_postal, ville, $wb_skip$, $wb_skip$, $wb_skip$, INE;
          
-WbImport -file=/home/etuinfo/eguillossou/Documents/IUT_1ST_Y/S2/SAE/SAE2.04/data/v_candidatures.csv
+WbImport -file=data2/v_candidatures.csv
          -header=true
          -delimiter=';'
          -table=_candidat_temp
@@ -196,6 +201,53 @@ INSERT INTO partie2._candidat
 
          
 
+WbImport -file= data2/ppn.csv
+         -header = true
+         -delimiter = ';'
+         -table = _module
+         -schema = partie2
+         -filecolumns = id_module, ue, libelle_module;
+
+WbImport -file= data2/v_resu_s1.csv
+         -header = true
+         -delimiter = ';'
+         -table = _temp_semestre
+         -schema = partie2
+         -filecolumns = annee_univ, num_semestre;
+;       
+WbImport -file= data2/v_resu_s2.csv
+         -header = true
+         -delimiter = ';'
+         -table = _temp_semestre
+         -schema = partie2
+         -filecolumns = annee_univ, num_semestre;
+         
+WbImport -file= data2/v_resu_s3.csv
+         -header = true
+         -delimiter = ';'
+         -table = _temp_semestre
+         -schema = partie2
+         -filecolumns = annee_univ, num_semestre;
+;        
+WbImport -file= data2/v_resu_s4.csv
+         -header = true
+         -delimiter = ';'
+         -table = _temp_semestre
+         -schema = partie2
+         -filecolumns = annee_univ, num_semestre;
+        
+insert into _semestre (num_semestre, annee_univ)  
+select distinct num_semestre, annee_univ
+from _temp_semestre;
+
+
+WbImport -file= data2/v_programme.csv
+         -header = true
+         -delimiter = ';'
+         -decimal = ","
+         -table = _programme
+         -schema = partie2
+         -filecolumns = annee_univ, num_semestre  ,id_module, coefficient;
 
 
 
