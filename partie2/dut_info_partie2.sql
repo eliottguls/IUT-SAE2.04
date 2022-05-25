@@ -98,8 +98,8 @@ CREATE TABLE _inscription(
 -- ALTER TABLE _inscription
 --     ADD CONSTRAINT fk_inscription_etudiant FOREIGN KEY (code_nip, annee_inscription)
 --         REFERENCES _etudiant(code_nip, annee_inscription);
--- erreur lors de l'injection des donnÃ©es donc Ã  ajouter aprÃ¨s avoir injecter les donneÃ©s
--- Nous n'avons pas tous les Ã©tudiant qui devrait Ãªtre prÃ©sent dans _etudiant donc inscription ne peut pas respecter la clÃ© Ã©trangeÃ¨re sur code_nip, annee_inscription
+-- erreur lors de l'injection des données donc à ajouter après avoir injecter les donneés
+-- Nous n'avons pas tous les étudiant qui devrait être présent dans _etudiant donc inscription ne peut pas respecter la clé étrangeère sur code_nip, annee_inscription
 
 
 WbImport -file= data2/v_resu_s1.csv
@@ -156,34 +156,129 @@ CREATE TABLE _programme(
 /**********************
 *       RESULTAT      *
 **********************/
-DROP TABLE IS EXISTS _resultat cascade;
+DROP TABLE IF EXISTS _resultat cascade;
 CREATE TABLE _resultat(
-      id_module                   CHAR(5),
-      annee_univ                  CHAR(9) ,
-      num_semestre                CHAR(5) ,
-      code_nip                    VARCHAR(8),
-      moyenne                     FLOAT not null,
+      id_module                   VARCHAR(100),
+      annee_univ                  VARCHAR(100) ,
+      num_semestre                VARCHAR(50) ,
+      code_nip                    VARCHAR(80),
+      moyenne                     VARCHAR(50),
       CONSTRAINT PK_RESULTAT PRIMARY KEY(id_module, num_semestre, code_nip));
 
-DROP TABLE IF EXISTS _id_module_temp CASCADE;
-CREATE TABLE _id_module_temp(
-      id_module VARCHAR(50)
-);
-INSERT INTO _id_module_temp(
-SELECT id_module
-FROM _module);
-
-DROP TABLE IF EXISTS _resulat_temp CASCADE;
+DROP TABLE IF EXISTS _resultat_temp CASCADE;
 CREATE TABLE _resultat_temp(
-      INE     VARCHAR(100),
-      anee_univ VARCHAR(100),
-      num_semestre VARCHAR(100),
-      code_nip      VARCHAR(100)); 
-      
+      code_nip      VARCHAR(100),
+      num_semestre  VARCHAR(50),
+      annee_univ    VARCHAR(50),
+      ue11          VARCHAR(50),
+      m1101         VARCHAR(50),
+      m1103         VARCHAR(50),
+      m1104         VARCHAR(50),
+      m1105         VARCHAR(50),
+      m1106         VARCHAR(50),
+      ue12          VARCHAR(50),
+      m1201         VARCHAR(50),
+      m1202         VARCHAR(50),
+      m1203         VARCHAR(50),
+      m1204         VARCHAR(50),
+      m1205         VARCHAR(50),
+      m1206         VARCHAR(50),
+      m1207         VARCHAR(50),
+      ue21          VARCHAR(50),
+      m2101         VARCHAR(50),
+      m2102         VARCHAR(50),
+      m2103         VARCHAR(50),
+      m2104         VARCHAR(50),
+      m2105         VARCHAR(50),
+      m2106         VARCHAR(50),
+      m2107         VARCHAR(50),
+      ue22          VARCHAR(50),
+      m2201         VARCHAR(50),
+      m2202         VARCHAR(50),
+      m2203         VARCHAR(50),
+      m2204         VARCHAR(50),
+      m2205         VARCHAR(50),
+      m2206         VARCHAR(50),
+      m2207         VARCHAR(50),
+      ue31          VARCHAR(50),
+      m3101         VARCHAR(50),
+      m3102         VARCHAR(50),
+      m3103         VARCHAR(50),
+      m3104         VARCHAR(50),
+      m3105         VARCHAR(50),
+      m3106         VARCHAR(50),
+      ue32          VARCHAR(50),
+      m3201         VARCHAR(50),
+      m3202         VARCHAR(50),
+      m3203         VARCHAR(50),
+      m3204         VARCHAR(50),
+      m3205         VARCHAR(50),
+      m3206         VARCHAR(50),
+      ue33          VARCHAR(50),
+      m3301         VARCHAR(50),
+      m3302         VARCHAR(50),
+      m3303         VARCHAR(50),
+      ue41          VARCHAR(50),
+      m4101c        VARCHAR(50),
+      m4102c        VARCHAR(50),
+      m4103c        VARCHAR(50),
+      m4104c        VARCHAR(50),
+      m4105c        VARCHAR(50),
+      m41os1        VARCHAR(50),
+      m41os2        VARCHAR(50),
+      m41os3        VARCHAR(50),
+      m4106         VARCHAR(50),
+      ue42          VARCHAR(50),
+      m4202c        VARCHAR(50),
+      m4203         VARCHAR(50),
+      m4204         VARCHAR(50),
+      ue43          VARCHAR(50),
+      m4301         VARCHAR(50));
 
 
-      
 
+WbImport -file= data2/v_resu_s1.csv
+         -header = true
+         -delimiter = ';'
+         -table = _resultat_temp
+         -schema = partie2
+         -filecolumns = annee_univ, num_semestre, code_nip, $wb_skip$, $wb_skip$, $wb_skip$, $wb_skip$, $wb_skip$,
+         $wb_skip$, $wb_skip$, $wb_skip$, ue11, m1101, m1103, m1104, m1105, m1106, ue12, m1201, m1202, m1203,
+         m1204, m1205, m1206, m1207;
+
+WbImport -file= data2/v_resu_s2.csv
+         -header = true
+         -delimiter = ';'
+         -table = _resultat_temp
+         -schema = partie2
+         -filecolumns = annee_univ, num_semestre, code_nip, $wb_skip$, $wb_skip$, $wb_skip$, $wb_skip$, $wb_skip$,
+         $wb_skip$, $wb_skip$, $wb_skip$, ue21, m2101, m2102,m2103, m2104, m2105, m2106,m2107, ue22, m2201,
+         m2202,m2203, m2204, m2205, m2206, m2207;    
+
+WbImport -file= data2/v_resu_s3.csv
+         -header = true
+         -delimiter = ';'
+         -table = _resultat_temp
+         -schema = partie2
+         -filecolumns = annee_univ, num_semestre, code_nip, $wb_skip$, $wb_skip$, $wb_skip$, $wb_skip$, $wb_skip$,
+         $wb_skip$, $wb_skip$, $wb_skip$, ue31, m3101, m3102, m3103, m3104, m3105, m3106, ue32, m3201, m2102, m3203, 
+         m3204, m3205, m3206, ue33, m3301, m3302, m3303;    
+         
+
+WbImport -file= data2/v_resu_s4.csv
+         -header = true
+         -delimiter = ';'
+         -table = _resultat_temp
+         -schema = partie2
+         -filecolumns = annee_univ, num_semestre, code_nip, $wb_skip$, $wb_skip$, $wb_skip$, $wb_skip$, $wb_skip$,
+         $wb_skip$, $wb_skip$, $wb_skip$, ue41, m4101c, m4102c, m4103c, m4104c, m4105c, m41os1, m41os2, m4106, 
+         ue42, m4201c, m4202c, m4203, m4204, ue43, m4301;
+         
+
+
+INSERT INTO _resultat(
+    SELECT code_nip, num_semestre, annee_univ, 'ue11' as id_module
+    FROM _resultat_temp);
 
 /********************
 *    CONTRAINTES    *
@@ -393,7 +488,3 @@ INSERT INTO partie2._etudiant
     mention_bac, serie_bac, dominante_bac, specialite_bac, mois_annee_obtention_bac
     FROM partie2._etudiant_temp et
     INNER JOIN partie2._individu i ON et.INE = i.INE);
-    
-
-
-
