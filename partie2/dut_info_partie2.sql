@@ -61,7 +61,6 @@ CREATE TABLE _etudiant(
       mois_annee_obtention_bac    VARCHAR(70), --formater les dates
       CONSTRAINT PK_ETUDIANT PRIMARY KEY(code_nip, annee_inscription)
       );
-      
 
 
 /**********************
@@ -84,13 +83,56 @@ CREATE TABLE _temp_semestre
 /*************************
 *       INSCRIPTION      *
 *************************/
+DROP TABLE  if exists _inscription cascade;
 CREATE TABLE _inscription(
-      code_nip                    VARCHAR(8),
-      id_semestre                 INT,
-      groupe_tp                   CHAR(2) not null,
-      amenagement_evaluation      VARCHAR(20) not null,
-      CONSTRAINT PK_INSCRIPTION PRIMARY kEY(code_nip, id_semestre));
+      code_nip            VARCHAR(80),
+      annee_inscription   VARCHAR(100) not null,
+      num_semestre                VARCHAR(20) not null,
+      groupe_tp                   CHAR(2),
+      CONSTRAINT PK_INSCRIPTION PRIMARY KEY(code_nip, annee_inscription, num_semestre));
         
+-- ALTER TABLE _inscription
+--     ADD CONSTRAINT fk_inscription_semestre FOREIGN KEY (num_semestre)
+--         REFERENCES _semestre(num_semestre);
+--         
+-- ALTER TABLE _inscription
+--     ADD CONSTRAINT fk_inscription_etudiant FOREIGN KEY (code_nip, annee_inscription)
+--         REFERENCES _etudiant(code_nip, annee_inscription);
+-- erreur lors de l'injection des données donc à ajouter après avoir injecter les donneés
+-- Nous n'avons pas tous les étudiant qui devrait être présent dans _etudiant donc inscription ne peut pas respecter la clé étrangeère sur code_nip, annee_inscription
+
+
+WbImport -file= data2/v_resu_s1.csv
+         -header = true
+         -delimiter = ';'
+         -table = _inscription
+         -schema = partie2
+         -filecolumns = annee_inscription, num_semestre, code_nip, $wb_skip$, $wb_skip$, $wb_skip$, $wb_skip$, 
+         $wb_skip$, $wb_skip$, groupe_tp;
+         
+WbImport -file= data2/v_resu_s2.csv
+         -header = true
+         -delimiter = ';'
+         -table = _inscription
+         -schema = partie2
+         -filecolumns = annee_inscription, num_semestre, code_nip, $wb_skip$, $wb_skip$, $wb_skip$, $wb_skip$, 
+         $wb_skip$, $wb_skip$, groupe_tp;
+         
+WbImport -file= data2/v_resu_s3.csv
+         -header = true
+         -delimiter = ';'
+         -table = _inscription
+         -schema = partie2
+         -filecolumns = annee_inscription, num_semestre, code_nip, $wb_skip$, $wb_skip$, $wb_skip$, $wb_skip$, 
+         $wb_skip$, $wb_skip$, groupe_tp;
+         
+WbImport -file= data2/v_resu_s4.csv
+         -header = true
+         -delimiter = ';'
+         -table = _inscription
+         -schema = partie2
+         -filecolumns = annee_inscription, num_semestre, code_nip, $wb_skip$, $wb_skip$, $wb_skip$, $wb_skip$, 
+         $wb_skip$, $wb_skip$, groupe_tp;
 
 /********************
 *       MODULE      *
@@ -114,12 +156,33 @@ CREATE TABLE _programme(
 /**********************
 *       RESULTAT      *
 **********************/
+DROP TABLE IS EXISTS _resultat cascade;
 CREATE TABLE _resultat(
       id_module                   CHAR(5),
-      id_semestre                 INT,
+      annee_univ                  CHAR(9) ,
+      num_semestre                CHAR(5) ,
       code_nip                    VARCHAR(8),
       moyenne                     FLOAT not null,
-      CONSTRAINT PK_RESULTAT PRIMARY KEY(id_module, id_semestre, code_nip));
+      CONSTRAINT PK_RESULTAT PRIMARY KEY(id_module, num_semestre, code_nip));
+
+DROP TABLE IF EXISTS _id_module_temp CASCADE;
+CREATE TABLE _id_module_temp(
+      id_module VARCHAR(50)
+);
+INSERT INTO _id_module_temp(
+SELECT id_module
+FROM _module);
+
+DROP TABLE IF EXISTS _resulat_temp CASCADE;
+CREATE TABLE _resultat_temp(
+      INE     VARCHAR(100),
+      anee_univ VARCHAR(100),
+      num_semestre VARCHAR(100),
+      code_nip      VARCHAR(100)); 
+      
+
+
+      
 
 
 /********************
@@ -280,11 +343,12 @@ WbImport -file=data2/v_inscriptions.csv
          $wb_skip$, $wb_skip$, $wb_skip$, $wb_skip$, cat_socio_etu, cat_socio_parent, serie_bac, mention_bac,
          $wb_skip$, $wb_skip$, $wb_skip$, $wb_skip$,$wb_skip$, bourse_superieur;
          
-drop table if exists _etudiant_temp_candidatures cascade;
 
-  
+
+drop table if exists _etudiant_temp_candidatures cascade;
 create table _etudiant_temp_candidatures( 
       INE                 VARCHAR(120),
+      annee_candidature   VARCHAR(200),
       serie_bac           VARCHAR(200),
       dominante_bac       VARCHAR(200), 
       specialite_bac      VARCHAR(200), 
@@ -297,7 +361,7 @@ WbImport -file=data2/v_candidatures.csv
          -delimiter = ';'
          -table = _etudiant_temp_candidatures
          -schema = partie2
-         -filecolumns = $wb_skip$, $wb_skip$, $wb_skip$, $wb_skip$, $wb_skip$, $wb_skip$, 
+         -filecolumns = annee_candidature, $wb_skip$, $wb_skip$, $wb_skip$, $wb_skip$, $wb_skip$, 
          $wb_skip$, $wb_skip$, $wb_skip$, $wb_skip$, $wb_skip$, $wb_skip$, $wb_skip$, INE, 
          $wb_skip$, $wb_skip$, $wb_skip$, $wb_skip$, $wb_skip$, $wb_skip$, $wb_skip$, serie_bac,
          dominante_bac, specialite_bac, $wb_skip$, $wb_skip$,$wb_skip$, $wb_skip$, $wb_skip$, $wb_skip$, 
@@ -305,23 +369,23 @@ WbImport -file=data2/v_candidatures.csv
          
 drop table if exists _etudiant_temp cascade;
 CREATE TABLE _etudiant_temp(
-      INE                 VARCHAR(120),
-      code_nip            VARCHAR(80),
-      annee_inscription   VARCHAR(100) not null, 
-      cat_socio_etu       VARCHAR(100) not null,
-      cat_socio_parent    VARCHAR(200),
-      bourse_superieur    VARCHAR(200),
-      mention_bac         VARCHAR(100),
-      serie_bac           VARCHAR(200),
-      dominante_bac       VARCHAR(200), 
-      specialite_bac      VARCHAR(200), 
-      mois_annee_obtention_bac    VARCHAR(70));
+      INE                       VARCHAR(120),
+      code_nip                  VARCHAR(80),
+      annee_inscription         VARCHAR(100) not null, 
+      cat_socio_etu             VARCHAR(100) not null,
+      cat_socio_parent          VARCHAR(200),
+      bourse_superieur          VARCHAR(200),
+      mention_bac               VARCHAR(100),
+      serie_bac                 VARCHAR(200),
+      dominante_bac             VARCHAR(200), 
+      specialite_bac            VARCHAR(200), 
+      mois_annee_obtention_bac  VARCHAR(70));
       
 INSERT INTO _etudiant_temp
   (SELECT eti.INE, code_nip, annee_inscription, cat_socio_etu, cat_socio_parent, 
   bourse_superieur, mention_bac, serie_bac, dominante_bac, specialite_bac, mois_annee_obtention_bac
   FROM _etudiant_temp_inscription eti
-  INNER JOIN _etudiant_temp_candidatures etc ON eti.INE = etc.INE);
+  INNER JOIN _etudiant_temp_candidatures etc ON eti.INE = etc.INE and eti.annee_inscription = etc.annee_candidature);
   
 
 INSERT INTO partie2._etudiant
@@ -329,4 +393,7 @@ INSERT INTO partie2._etudiant
     mention_bac, serie_bac, dominante_bac, specialite_bac, mois_annee_obtention_bac
     FROM partie2._etudiant_temp et
     INNER JOIN partie2._individu i ON et.INE = i.INE);
+    
+
+
 
