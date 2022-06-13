@@ -121,13 +121,19 @@ def Renvoie_Cluster(DF, Res, i):
     cluster_map  = DF
     cluster_map['cluster'] = Res.labels_
     restmp = []
+    lst_moy_g = []
+    lst_dept = []
 
     for j in range(0, len(cluster_map)):
         if cluster_map['cluster'][j] == i:
             restmp.append(DF.iloc[j])
 
-    pd.set_option('display.max_rows', 230)
-    affiche(restmp)
+    for z in range(len(restmp)):
+        lst_moy_g.append((restmp[z][3], restmp[z][1]))
+        lst_dept.append((restmp[z][3],restmp[z][2]))
+
+    print("liste de couple (position a dans leur nom, département établissement :",lst_dept)
+
     return restmp
 
 
