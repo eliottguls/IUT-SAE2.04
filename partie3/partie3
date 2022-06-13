@@ -1,0 +1,56 @@
+set schema 'partie3';
+
+DROP VIEW IF EXISTS _part3_1 cascade;
+CREATE OR REPLACE VIEW _part3_1 AS(
+      SELECT date_naissance, code_nip, i.ine 
+      FROM _individu i
+      INNER JOIN _etudiant e ON i.ine = e.ine
+);
+
+
+CREATE OR REPLACE VIEW _part3_2 AS(
+      SELECT date_naissance, r.code_nip, id_module, moyenne
+      FROM _part3_1 p1
+      INNER JOIN _resultat r ON p1.code_nip = r.code_nip);
+      
+DROP VIEW IF EXISTS _moyenne_g CASCADE;
+CREATE OR REPLACE VIEW _moyenne_g AS(
+      SELECT date_naissance, avg(moyenne) as moy_g
+      FROM _part3_2
+      GROUP BY date_naissance, code_nip
+      );
+      
+
+
+CREATE OR REPLACE FUNCTION anciennete(dat DATE) RETURNS INTEGER AS $ancien$
+  DECLARE 
+  age integer;
+  currentDate Date;
+  currentYear INTEGER;
+  currentMonth INTEGER;
+  year INTEGER;
+  month INTEGER;
+BEGIN
+  currentDate := CAST(CURRENT_DATE AS Date);
+  currentYear := EXTRACT(YEAR FROM currentDate);
+  currentMonth := EXTRACT(MONTH FROM currentDate);
+  year := EXTRACT(YEAR FROM dat);
+  month := EXTRACT(MONTH FROM dat);
+  
+  IF dat> CURRENT_DATE THEN
+    RAISE EXCEPTION 'Date posterieur %', dat;
+  END IF;
+  
+  age := currentYear - year;
+  if (currentMonth > month) then
+    age := age +1;
+  END IF;
+RETURN age;
+END;
+$ancien$ LANGUAGE plpgsql;
+
+select (anciennete('10/03/2000'));
+
+
+select matr, nome, anciennete(dateemb)
+FROM emp;
